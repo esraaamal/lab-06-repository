@@ -71,12 +71,36 @@ function Weather(weatherObj ,s) {
 
 
 
+// server.use((error, req, res) => {
+//     res.status(500).send(error);
+// })
 
-server.use('*', (req, res) => {
-    res.status(404).send('NOT FOUND');
+
+// server.use('*', (req, res) => {
+//     res.status(404).send('NOT FOUND');
+// });
+
+let errArr =[
+{
+
+    status: 500,
+    responseText:"Sorry, something went wrong" 
+}
+
+];
+
+server.use('*',(request,response) => {
+    response.status(500).send(new CoverError());
 });
 
+function CoverError(){
+    this.status =errArr[0].status;
+    this.responseText=errArr[0].responseText ;
+    // this.error= error;
+    // status: 500,
+    // responseText: "Sorry, something went wrong",
 
+}
 
 
 
