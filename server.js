@@ -51,71 +51,69 @@ function Location(city, geodata) {
     this.latitude = geodata[0].lat;
     this.longitude =geodata[0].lon;
   }
-//   app.get('/weather',weatherHandler);
+  app.get('/weather',weatherHandler);
 
 
-// function weatherHandler(request,response){
-// const city =request.query.city;
+function weatherHandler(request,response){
+const cityWeath =request.query.city;
 
-// getWeather(city)
-// .then (weatherData =>response.status(200).json(weatherData));
+getWeather(cityWeath)
+.then (weatherData =>response.status(200).json(weatherData));
 
-// }
+}
   
 
-// const arrWeather=[];
+const arrWeather=[];
 
-// function getWeather(city){
-// let key=process.env.WEATHER_API_KEY;
-// const url=`https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&key=${key}`;
-// console.log('ddddddddddddddddddddddddddddd',url);
-// return superagent.get(url)
-// .then(weatherData =>{
-// let newData =weatherData.body.data;
+function getWeather(cityWeath){
+const key = process.env.WEATHER_API_KEY;
+const url = `https://api.weatherbit.io/v2.0/forecast/daily?city=${cityWeath}&key=${key}`;
+console.log('ddddddddddddddddddddddddddddd',url);
+return superagent.get(url)
+.then(weatherData =>{
+let newData =weatherData.body.data;
 
-//  return newData.map(weatherData =>{
-// return new Weather(weatherData);
-// // arrWeather.push(weatherData);
+ let newWeather= newData.map(weatherData =>{
+return new Weather(weatherData);
+// arrWeather.push(weatherData);
 
-// });
-// // return arrWeather;
+});
+return newWeather;
 
-// })
+})
 
+}
+
+function Weather(day) {
+    this.forecast = day.weather.description;
+      this.time = new Date(day.valid_date).toString().slice(0,15);
+  }
+
+// app.get('/weather',responseWeather);
+
+// function responseWeather(req,res){
+//   const weatherCity = req.query.city;
+//   dataWeather(weatherCity)
+//     .then(val => res.status(200).json(val));
 // }
-// console.log(arrWeather);
 
-// function Weather(day) {
-//     this.forecast = day.weather.description;
-//       // this.time = new Date(day.valid_date).toString().slice(0,15);
-//       this.time = day.valid_date;
-//   }
+// function dataWeather(weatherCity) {
+//   const key = process.env.WEATHER_KEY_API;
+//   const dataWeather = `https://api.weatherbit.io/v2.0/forecast/daily?city=${weatherCity}&key=${key}`;
+//   return superagent.get(dataWeather)
+//     .then(val =>{
+//       const dataArray = val.body.data;
+//       let array = dataArray.map(val => {
+//         const weather = new Weather(val);
+//         return weather;});
+//       return array;
+//     })
+// }
 
-server.get('/weather',responseWeather);
-
-function responseWeather(req,res){
-  const weatherCity = req.query.city;
-  dataWeather(weatherCity)
-    .then(val => res.status(200).json(val));
-}
-
-function dataWeather(weatherCity) {
-  const key = process.env.WEATHER_KEY_API;
-  const dataWeather = `https://api.weatherbit.io/v2.0/forecast/daily?city=${weatherCity}&key=${key}`;
-  return superagent.get(dataWeather)
-    .then(val =>{
-      const dataArray = val.body.data;
-      let array = dataArray.map(val => {
-        const weather = new Weather(val);
-        return weather;});
-      return array;
-    })
-}
-
-function Weather(dataWeath){
-  this.forecast = dataWeath.weather.description;
-  this.time = dataWeath.valid_date;
-}
+// function Weather(dataWeath){
+//   this.forecast = dataWeath.weather.description;
+//   this.time = dataWeath.valid_date;
+// }
 
 
 
