@@ -21,7 +21,6 @@ app.use(cors());
 //http://localhost:3000/test
 
 app.get('/location',locationFunc);
-// app.get('/weather',weatherFunc);
 
 
 
@@ -36,35 +35,87 @@ function getLocation(city){
 let key =process.env.GEOCODE_API_KEY;
 let url =`https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
 return superagent.get(url)
-.then(data =>{
-    console.log(data);
-const locationData =new Location(city ,data.body);
+.then(geodata =>{
+    console.log(geodata);
+const locationData =new Location(city ,geodata.body);
 return locationData;
 
 })
 }
 
-function Location(city, data) {
+
+
+function Location(city, geodata) {
     this.search_query = city;
-    this.formatted_query = data[0].display_name;
-    this.latitude = data[0].lat;
-    this.longitude = data[0].lon;
+    this.formatted_query = geodata[0].display_name;
+    this.latitude = geodata[0].lat;
+    this.longitude =geodata[0].lon;
   }
+//   app.get('/weather',weatherHandler);
+
+
+// function weatherHandler(request,response){
+// const city =request.query.city;
+
+// getWeather(city)
+// .then (weatherData =>response.status(200).json(weatherData));
+
+// }
   
 
+// const arrWeather=[];
 
+// function getWeather(city){
+// let key=process.env.WEATHER_API_KEY;
+// const url=`https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&key=${key}`;
+// console.log('ddddddddddddddddddddddddddddd',url);
+// return superagent.get(url)
+// .then(weatherData =>{
+// let newData =weatherData.body.data;
 
+//  return newData.map(weatherData =>{
+// return new Weather(weatherData);
+// // arrWeather.push(weatherData);
 
+// });
+// // return arrWeather;
 
+// })
 
+// }
+// console.log(arrWeather);
 
+// function Weather(day) {
+//     this.forecast = day.weather.description;
+//       // this.time = new Date(day.valid_date).toString().slice(0,15);
+//       this.time = day.valid_date;
+//   }
 
+server.get('/weather',responseWeather);
 
+function responseWeather(req,res){
+  const weatherCity = req.query.city;
+  dataWeather(weatherCity)
+    .then(val => res.status(200).json(val));
+}
 
+function dataWeather(weatherCity) {
+  const key = process.env.WEATHER_KEY_API;
+  const dataWeather = `https://api.weatherbit.io/v2.0/forecast/daily?city=${weatherCity}&key=${key}`;
+  return superagent.get(dataWeather)
+    .then(val =>{
+      const dataArray = val.body.data;
+      let array = dataArray.map(val => {
+        const weather = new Weather(val);
+        return weather;});
+      return array;
+    })
+}
 
-
-
-
+function Weather(dataWeath){
+  this.forecast = dataWeath.weather.description;
+  this.time = dataWeath.valid_date;
+}
 
 
 
