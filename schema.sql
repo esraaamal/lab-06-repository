@@ -1,10 +1,9 @@
   
-DROP TABLE IF EXISTS people;
-
-CREATE TABLE people (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255)
+DROP TABLE IF EXISTS location1;
+-- IF NOT EXISTS
+CREATE TABLE IF NOT EXISTS location1 (
+search_query VARCHAR(255),
+formatted_query VARCHAR(255),
+latitude INT,
+longitude INT
 );
-
-INSERT INTO people (first_name,last_name) VALUES ('Bushra','Bilal');
