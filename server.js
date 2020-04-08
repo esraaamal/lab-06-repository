@@ -8,23 +8,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
-const pg= require('pg');
-
 
 
 
 
 const PORT = process.env.PORT || 3000;
-const client =new pg.Client(process.env.DATABASE_URL);
 const app = express();
 app.use(cors());
 
-
-app.use('/test',(request,response) => {
-  response.status(500).send("ok");
-});
-
-
+app.use(cors());
 
 //http://localhost:3000/test
 
@@ -33,35 +25,10 @@ app.get('/location',locationFunc);
 
 
 function locationFunc(request,response){
-    
 const city =request.query.city; //he will ask to put the city key with its value after the "?" in url
-getLocationFromDb(city)
+getLocation(city)
   .then(locationData=> response.status(200).json(locationData));
 }
-
-
-
-function getLocationFromDb(city){
-
-let SQL = 'SELECT * FROM location1 where city =($1)';
-let newArray =[city];
- return client.query(SQL, newArray)
-.then(results =>{
-if (results.rows[0] != null){
-return results.rows[0];
-}else{
-    getLocation(city)
-    .then (results =>{
-        return results;
-    });
-}
-
-    // response.status(200).json(results.rows);
-})
-.catch (error => errorHandler(error));
-}
-
-
 
 
 function getLocation(city){
@@ -84,7 +51,7 @@ function Location(city, geodata) {
     this.latitude = geodata[0].lat;
     this.longitude =geodata[0].lon;
   }
-app.get('/weather',weatherHandler);
+  app.get('/weather',weatherHandler);
 
 
 function weatherHandler(request,response){
@@ -178,30 +145,91 @@ function Trailes(data1){
 
 };
 
+/////////////////////////////////////////////////////
 
 
 
 
+app.get('/movies',movieFunc);
 
 
-// Error Handler/////////////////////////////////////////////
-app.get('*', notFoundHandler);
-
-//let's have another function to handle any errors
-app.use(errorHandler);
-
-function notFoundHandler(request,response) { 
-    response.status(404).send('huh????');
-}
-
-function errorHandler(error, request, response) {
-    response.status(500).send(error);
-}
-////////////////////////////////////////////////////////////
+function movieFunc(request,response){
+    const city =request.query.city; 
+    getMovie(city)
+      .then(movieOnData => response.status(200).json(movieOnData));
+    }
 
 
 
+function getMovie(city){
+    let key =process.env.MOVIE_API_KEY;
+    let url =`https://api.themoviedb.org/3/movie/550?api_key=${key}`;
+    return superagent.get(url)
+    .then(moviedata =>{
+        console.log(moviedata);
+    const movieOnData =new Movies(moviedata.body);
+    return movieOnData;
+    
+    })
+    }
 
+
+    function Movies(moviedata) {
+        this.title = moviedata.title;
+        this.overview = moviedata.overview;
+        this.average_votes= moviedata.vote_average;
+        this.total_votes=moviedata.vote_count;
+        this.image_url=moviedata.backdrop_path;
+        this.popularity=moviedata.popularity;
+        this.released_on=moviedata.release_date;
+
+      }
+
+
+
+///////////////////////////////////////////
+app.get('/yelp',yelpFunc);
+
+function yelpFunc(request,response){
+    const city =request.query.city; 
+    getYelp(city)
+      .then(yelpOnData => response.status(200).json(yelpOnData));
+    }
+// const access_token = "---------";
+// let key =process.env.YELP_API_KEY;
+
+// let myHeaders = new Headers();
+// myHeaders.append("Authorization", `Bearer ${key} `);
+
+// fetch(`https://api.yelp.com/v3/businesses/search?location=${city}`, {
+//   headers: myHeaders 
+// })
+
+    function getYelp(city){
+       
+        let key =process.env.YELP_API_KEY;
+        let url =`https://api.yelp.com/v3/businesses/search?location=${city}`;
+        return superagent.get(url)
+        .set('Authorization',`Bearer ${key}`)
+        .then(yData =>{
+            console.log(yData);
+        const yelpOnData =new Yelp(yData.body);
+        return yelpOnData;
+        
+        })
+        }
+
+
+        function Yelp(yData) {
+            this.name=yData.businesses[0].name;
+            this.image_url= yData.businesses[0].image_url;
+            this.price= yData.businesses[0].price;
+            this.rating=yData.businesses[0].rating;
+            this.url=yData.businesses[0].url;
+    
+          }
+
+//////////////////////////////////////////
 
 let errArr =[
 {
@@ -226,9 +254,11 @@ function CoverError(){
 
 
 
-client.connect()
-.then(()=>{
-  app.listen(PORT, () => {
-      console.log('listening on port', PORT);
-  });
-})
+
+
+app.listen(PORT, () => {
+
+
+    console.log('listening on port', PORT);
+
+});
