@@ -24,22 +24,6 @@ app.use('/test',(request,response) => {
   response.status(500).send("ok");
 });
 
-//////////////////////////////////////////////
-
-
-// // http://localhost:3000/add?fname=Razan&lname=Quran
-// app.get('/add',(request,response)=>{
-//     let firstName = request.query.fname;
-//     let lastName = request.query.lname;
-//     let safeValues = [firstName,lastName];
-//     let SQL = 'INSERT INTO people (first_name,last_name) VALUES ($1,$2)';
-//     client.query(SQL,safeValues)
-//     .then( results => {
-//         response.status(200).json(results.rows);
-//     })
-//     .catch (error => errorHandler(error));
-
-// })
 
 
 //http://localhost:3000/test
