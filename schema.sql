@@ -1,9 +1,11 @@
   
-DROP TABLE IF EXISTS location1;
+DROP TABLE IF EXISTS location_city;
 -- IF NOT EXISTS
-CREATE TABLE  location1 (
+CREATE TABLE  location_city (
+id SERIAL PRIMARY KEY ,
 search_query VARCHAR(255),
 formatted_query VARCHAR(255),
-latitude INT,
-longitude INT
+latitude NUMERIC,
+longitude NUMERIC
 );
+
