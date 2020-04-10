@@ -20,10 +20,6 @@ const app = express();
 app.use(cors());
 
 
-app.use('/test',(request,response) => {
-  response.status(500).send("ok");
-});
-
 
 
 //http://localhost:3000/test
@@ -40,14 +36,15 @@ getLocationFromDb(city)
 }
 
 
-
+let lat;
+let lon;
 function getLocationFromDb(city){
-
-let SQL = 'SELECT * FROM location1 where city =($1)';
-let newArray =[city];
- return client.query(SQL, newArray)
+let SQL = 'SELECT * FROM location_city where search_query=$1;';
+let safeValues =[city];
+ return client.query(SQL, safeValues)
 .then(results =>{
-if (results.rows[0] != null){
+if (results.count){
+  //results.count mean if there is amman return the info location for it
 return results.rows[0];
 }else{
     getLocation(city)
@@ -67,11 +64,23 @@ return results.rows[0];
 function getLocation(city){
 let key =process.env.GEOCODE_API_KEY;
 let url =`https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+
+
+
+
 return superagent.get(url)
 .then(geodata =>{
     console.log(geodata);
 const locationData =new Location(city ,geodata.body);
-return locationData;
+lat=locationData.latitude;
+lon=locationData.longitude;
+let SQL= 'INSERT INTO location_city (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4);';
+let safeValues =[city,locationData.formatted_query,lat,lon];
+return client.query(SQL,safeValues)
+.then(results=>{
+  results.rows[0];
+})
+// return locationData;
 
 })
 }
