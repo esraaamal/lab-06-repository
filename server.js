@@ -43,47 +43,31 @@ let SQL = 'SELECT * FROM location_city where search_query=$1;';
 let safeValues =[city];
  return client.query(SQL, safeValues)
 .then(results =>{
-if (results.count){
+if (results.rows[0]){
   //results.count mean if there is amman return the info location for it
 return results.rows[0];
-}else{
-    getLocation(city)
-    .then (results =>{
-        return results;
-    });
 }
-
-    // response.status(200).json(results.rows);
-})
-.catch (error => errorHandler(error));
+else{
+  let key =process.env.GEOCODE_API_KEY;
+  let url =`https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+  return superagent.get(url)
+  .then(geodata =>{
+      console.log(geodata);
+  const locationData =new Location(city ,geodata.body);
+  lat=locationData.latitude;
+  lon=locationData.longitude;
+  let SQL= 'INSERT INTO location_city (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4);';
+  let safeValues =[city,locationData.formatted_query,lat,lon];
+  return client.query(SQL,safeValues)
+  .then(results=>{
+    results.rows[0];
+  })
+  // return locationData;
+  
+  })
 }
+})}
 
-
-
-
-function getLocation(city){
-let key =process.env.GEOCODE_API_KEY;
-let url =`https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
-
-
-
-
-return superagent.get(url)
-.then(geodata =>{
-    console.log(geodata);
-const locationData =new Location(city ,geodata.body);
-lat=locationData.latitude;
-lon=locationData.longitude;
-let SQL= 'INSERT INTO location_city (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4);';
-let safeValues =[city,locationData.formatted_query,lat,lon];
-return client.query(SQL,safeValues)
-.then(results=>{
-  results.rows[0];
-})
-// return locationData;
-
-})
-}
 
 
 
